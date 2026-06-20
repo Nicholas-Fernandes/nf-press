@@ -6,8 +6,7 @@
     { "id": "realestate", "name": "Real Estate", "color": "#34d399" },
     { "id": "personal",   "name": "Personal",   "color": "#fb923c", "note": "Awards & Recognition" }
   ],
-  "articles": [
-    {
+  
   "id": "bright-bloom-1",
   "section": "realestate",
   "business": "Bright Bloom",
@@ -21,6 +20,8 @@
     "articles/bright-bloom/assets/page-2.jpg",
     "articles/bright-bloom/assets/page-3.jpg"
   ],
+  "acquired": false
+},
   "acquired": false
 },
     {
