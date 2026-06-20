@@ -8,17 +8,21 @@
   ],
   "articles": [
     {
-      "id": "example-1",
-      "section": "businesses",
-      "business": "Memmzy Health",
-      "title": "Example: Memmzy Featured in TechCrunch",
-      "publication": "TechCrunch",
-      "date": "2025-06-01",
-      "type": "pdf",
-      "file": "articles/memmzy/techcrunch-2025.pdf",
-      "link": "https://techcrunch.com/example-article-still-live",
-      "acquired": false
-    },
+  "id": "bright-bloom-1",
+  "section": "realestate",
+  "business": "Bright Bloom",
+  "title": "America’s Housing Report Card",
+  "publication": "Press Feature",
+  "date": "2026-06-20",
+  "type": "image",
+  "file": "articles/bright-bloom/assets/page-1.jpg",
+  "gallery": [
+    "articles/bright-bloom/assets/page-1.jpg",
+    "articles/bright-bloom/assets/page-2.jpg",
+    "articles/bright-bloom/assets/page-3.jpg"
+  ],
+  "acquired": false
+},
     {
       "id": "example-2",
       "section": "businesses",
