@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Press Archive — Nicholas Fernandes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0c0c0b;
+  --bg2:      #111110;
+  --bg3:      #161614;
+  --border:   #1e1e1b;
+  --border2:  #252522;
+  --text:     #e2ddd4;
+  --text2:    #c0bbb0;
+  --muted:    #666;
+  --faint:    #333;
+  --ink:      #ede8de;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* HEADER */
+header { padding: 2.5rem 3rem 1.75rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.hdr-left h1 { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -0.025em; color: var(--ink); line-height: 1; }
+.hdr-left p { font-size: 0.67rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-top: 0.45rem; }
+.hdr-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.6rem; }
+.big-count { font-family: 'Playfair Display', serif; font-size: 3.5rem; font-weight: 400; color: #1e1e1b; line-height: 1; letter-spacing: -0.03em; }
+.hbtn { background: none; border: 1px solid var(--border2); color: var(--faint); padding: 0.32rem 0.8rem; font-family: 'DM Sans', sans-serif; font-size: 0.64rem; letter-spacing: 0.09em; text-transform: uppercase; border-radius: 2px; cursor: pointer; transition: all 0.15s; }
+.hbtn:hover { color: var(--text2); border-color: #555; }
+.hbtn.accent { background: var(--text); border-color: var(--text); color: var(--bg); }
+.hbtn.accent:hover { opacity: 0.85; }
+
+/* FILTERS */
+.filters { padding: 0.8rem 3rem; border-bottom: 1px solid #181816; display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+.fb { background: none; border: 1px solid var(--border2); color: #555; padding: 0.28rem 0.8rem; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.64rem; letter-spacing: 0.09em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 0.35rem; }
+.fb:hover { border-color: #444; color: var(--text2); }
+.fb.active { background: var(--text); border-color: var(--text); color: var(--bg); }
+.dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+/* STATUS */
+.status-bar { padding: 0.5rem 3rem; min-height: 1.6rem; font-size: 0.72rem; color: var(--faint); font-style: italic; }
+.status-bar.ok { color: #27ae60; }
+.status-bar.err { color: #c0392b; }
+
+/* SECTIONS */
+.content { padding-bottom: 5rem; }
+.section-header { padding: 1.75rem 3rem 0.8rem; border-top: 1px solid #181816; display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+.section-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 600; letter-spacing: -0.01em; }
+.section-count { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+.section-note { font-size: 0.66rem; color: #3a3a37; font-style: italic; }
+
+/* GRID */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; background: var(--bg3); margin: 0 3rem; border-radius: 3px; overflow: hidden; }
+.empty-sec { padding: 1.5rem 1.25rem; color: #2a2a27; font-size: 0.76rem; font-style: italic; background: var(--bg); }
+
+/* PDF / IMAGE CARD */
+.card { background: var(--bg); padding: 1.35rem; display: flex; flex-direction: column; gap: 0.7rem; cursor: pointer; transition: background 0.15s; }
+.card:hover { background: var(--bg2); }
+.card.acquired { opacity: 0.5; filter: grayscale(30%); }
+.card.acquired:hover { opacity: 0.68; }
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.pub-name { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.card-date { font-size: 0.62rem; color: var(--faint); flex-shrink: 0; }
+.card-body { display: flex; gap: 0.7rem; align-items: flex-start; }
+.pdf-icon { width: 28px; height: 36px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 0.46rem; color: var(--faint); letter-spacing: 0.05em; text-transform: uppercase; flex-shrink: 0; margin-top: 2px; position: relative; }
+.page-badge { position: absolute; bottom: -6px; right: -6px; background: var(--text); color: var(--bg); font-size: 0.5rem; font-weight: 600; padding: 0.05rem 0.3rem; border-radius: 6px; }
+.card-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 600; line-height: 1.45; color: #d8d4c8; flex: 1; }
+.card-footer { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.tag-row { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+.biz-pill { font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase; font-weight: 500; padding: 0.18rem 0.5rem; border-radius: 2px; }
+.acq-badge { font-size: 0.56rem; letter-spacing: 0.07em; text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 2px; background: rgba(100,100,90,0.1); color: #555; border: 1px solid #2a2a27; }
+.orig-link { text-decoration: none; font-size: 0.68rem; color: #555; transition: color 0.15s; flex-shrink: 0; }
+.orig-link:hover { color: var(--text2); }
+
+/* VIDEO CARD */
+.vcard { background: var(--bg); display: flex; flex-direction: column; cursor: pointer; transition: background 0.15s; overflow: hidden; }
+.vcard:hover { background: var(--bg2); }
+.vcard.acquired { opacity: 0.5; filter: grayscale(30%); }
+.vcard-thumb { position: relative; width: 100%; padding-top: 52%; background: #111; overflow: hidden; }
+.vcard-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+.vcard:hover .vcard-thumb img { transform: scale(1.04); }
+.vcard-placeholder { position: absolute; inset: 0; background: linear-gradient(135deg, #161614, #1e1e1b); display: flex; align-items: center; justify-content: center; }
+.play-wrap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.play-btn { width: 44px; height: 44px; background: rgba(12,12,11,0.75); border: 1.5px solid rgba(226,221,212,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; backdrop-filter: blur(6px); }
+.vcard:hover .play-btn { background: rgba(226,221,212,0.15); border-color: rgba(226,221,212,0.55); }
+.play-tri { width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-left: 14px solid var(--text); margin-left: 3px; }
+.vcard-body { padding: 1rem 1.15rem; display: flex; flex-direction: column; gap: 0.55rem; flex: 1; }
+.vcard-meta { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.vcard-type { font-size: 0.58rem; letter-spacing: 0.09em; text-transform: uppercase; color: #555; display: flex; align-items: center; gap: 0.35rem; }
+.vcard-views { font-size: 0.62rem; color: #3a3a37; display: flex; align-items: center; gap: 0.3rem; }
+.vcard-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 600; line-height: 1.4; color: #d8d4c8; }
+.vcard-footer { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+
+/* OVERLAY */
+.overlay { position: fixed; inset: 0; background: rgba(10,10,9,0.97); z-index: 900; display: none; flex-direction: column; }
+.overlay.show { display: flex; }
+.ov-hdr { padding: 0.9rem 1.75rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+.ov-pub { font-size: 0.62rem; color: var(--faint); letter-spacing: 0.1em; text-transform: uppercase; flex-shrink: 0; }
+.ov-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #ddd8cc; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ov-close { background: none; border: 1px solid var(--border2); color: var(--muted); padding: 0.28rem 0.8rem; font-family: 'DM Sans', sans-serif; font-size: 0.7rem; letter-spacing: 0.08em; border-radius: 2px; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
+.ov-close:hover { color: var(--text); border-color: #666; }
+.pdf-frame { flex: 1; width: 100%; border: none; background: #111; }
+.overlay-body { flex: 1; display: flex; align-items: center; justify-content: center; overflow: auto; background: #111; }
+.gallery-stack { width: 100%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 1.25rem 0; }
+.gallery-stack img { max-width: min(900px, 92%); width: 100%; display: block; box-shadow: 0 2px 16px rgba(0,0,0,0.5); }
+.gallery-page-label { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: #444; margin-top: 0.3rem; }
+.ov-footer { padding: 0.7rem 1.75rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; background: var(--bg2); }
+.ov-footer-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); flex-shrink: 0; }
+.ov-footer a { font-size: 0.78rem; color: #8ab4f8; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ov-footer a:hover { text-decoration: underline; }
+
+/* MANIFEST HELPER MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(10,10,9,0.88); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 1rem; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 4px; padding: 1.75rem; width: 520px; max-width: 100%; max-height: 90vh; overflow-y: auto; }
+.modal h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #ddd8cc; margin-bottom: 0.6rem; }
+.modal .desc { font-size: 0.78rem; color: #777; margin-bottom: 1rem; line-height: 1.5; }
+.modal .desc code { color: #c084fc; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.form-row { margin-bottom: 0.9rem; }
+.form-row.full { grid-column: 1/-1; }
+.form-row label { font-size: 0.63rem; letter-spacing: 0.08em; text-transform: uppercase; color: #555; display: block; margin-bottom: 0.3rem; }
+.form-row input, .form-row select { width: 100%; background: var(--bg); border: 1px solid var(--border2); color: var(--text); padding: 0.55rem 0.75rem; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; border-radius: 2px; outline: none; transition: border-color 0.15s; }
+.form-row input:focus, .form-row select:focus { border-color: #555; }
+.manifest-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: 3px; padding: 1rem; margin-bottom: 1rem; font-family: 'Courier New', monospace; font-size: 0.72rem; color: #34d399; line-height: 1.6; white-space: pre; overflow-x: auto; max-height: 220px; overflow-y: auto; }
+.copy-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.copy-row span { font-size: 0.65rem; color: #444; }
+.copy-btn { background: none; border: 1px solid var(--border2); color: #555; padding: 0.3rem 0.75rem; font-family: 'DM Sans', sans-serif; font-size: 0.65rem; letter-spacing: 0.08em; border-radius: 2px; cursor: pointer; transition: all 0.15s; }
+.copy-btn:hover { color: var(--text2); border-color: #555; }
+.modal-btns { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
+.mbtn { background: none; border: 1px solid var(--border2); color: var(--muted); padding: 0.4rem 1rem; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; border-radius: 2px; cursor: pointer; transition: all 0.15s; }
+.mbtn:hover { color: var(--text2); border-color: #555; }
+.mbtn.save { background: var(--text); border-color: var(--text); color: var(--bg); }
+.mbtn.save:hover { opacity: 0.85; }
+
+@media (max-width: 600px) {
+  header, .filters, .status-bar, .section-header { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .grid { margin: 0 1.25rem; }
+  .hdr-left h1 { font-size: 1.75rem; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-left">
+    <h1>Press Archive</h1>
+    <p>Nicholas Fernandes — Media Coverage</p>
+  </div>
+  <div class="hdr-right">
+    <div class="big-count" id="total-count">00</div>
+    <button class="hbtn accent" onclick="showManifestModal()">+ Add Coverage</button>
+  </div>
+</header>
+
+<div class="filters" id="filters"></div>
+<div class="status-bar" id="status"></div>
+<div class="content" id="content"></div>
+
+<!-- VIEWER OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="ov-hdr">
+    <span class="ov-pub" id="ov-pub"></span>
+    <span class="ov-title" id="ov-title"></span>
+    <button class="ov-close" onclick="closeOverlay()">✕ Close</button>
+  </div>
+  <div class="overlay-body" id="overlay-body">
+    <iframe class="pdf-frame" id="pdf-frame"></iframe>
+    <img id="img-frame" style="display:none;max-width:100%;max-height:100%;object-fit:contain;margin:auto" oncontextmenu="return false" draggable="false">
+    <div id="gallery-frame" class="gallery-stack" style="display:none"></div>
+  </div>
+  <div class="ov-footer" id="ov-footer" style="display:none">
+    <span class="ov-footer-label">Source</span>
+    <a href="#" id="ov-link" target="_blank" rel="noopener"></a>
+  </div>
+</div>
+
+<!-- MANIFEST HELPER MODAL -->
+<div class="modal-overlay" id="manifest-modal">
+  <div class="modal">
+    <h3>Add Coverage</h3>
+    <p class="desc">Upload the file to the right folder in your GitHub repo first, then fill this in to generate the entry. Copy it and paste it into the <code>articles</code> array in <code>manifest.json</code>, then commit.</p>
+    <div class="form-grid">
+      <div class="form-row"><label>Title</label><input type="text" id="m-title" oninput="updateSnippet()"></div>
+      <div class="form-row"><label>Publication</label><input type="text" id="m-pub" oninput="updateSnippet()"></div>
+      <div class="form-row"><label>Date</label><input type="date" id="m-date" oninput="updateSnippet()"></div>
+      <div class="form-row"><label>Business</label><input type="text" id="m-biz" placeholder="Memmzy Health" oninput="updateSnippet()"></div>
+      <div class="form-row"><label>Section</label><select id="m-section" onchange="updateSnippet()"></select></div>
+      <div class="form-row"><label>Type</label>
+        <select id="m-type" onchange="updateSnippet()"><option value="pdf">PDF</option><option value="image">Image / Screenshot</option><option value="video">Video</option><option value="podcast">Podcast</option></select>
+      </div>
+      <div class="form-row full"><label>File path (must match the file you uploaded exactly)</label><input type="text" id="m-file" placeholder="articles/memmzy/file.pdf" oninput="updateSnippet()"></div>
+      <div class="form-row full"><label>Original article link (optional, if still live)</label><input type="url" id="m-link" placeholder="https://..." oninput="updateSnippet()"></div>
+      <div class="form-row"><label>Acquired?</label>
+        <select id="m-acquired" onchange="updateSnippet()"><option value="false">No</option><option value="true">Yes (Acquired)</option></select>
+      </div>
+    </div>
+    <div class="manifest-box" id="snippet-box"></div>
+    <div class="copy-row">
+      <span>Copy → paste into manifest.json on GitHub → commit</span>
+      <button class="copy-btn" onclick="copySnippet()">Copy snippet</button>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn save" onclick="closeModals()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let sections = [], articles = [], filter = 'all';
+const ACQUIRED_BIZS = ['CreditSage'];
+const TYPE_COLORS = { YouTube:'#f87171', Podcast:'#34d399', Interview:'#60a5fa', Webinar:'#facc15', Other:'#94a3b8' };
+
+async function init() {
+  setStatus('Loading...', '');
+  try {
+    const r = await fetch('manifest.json?_=' + Date.now());
+    if (!r.ok) throw new Error('No manifest');
+    const data = await r.json();
+    sections = data.sections || [];
+    articles = (data.articles || []).map(a => ({
+      ...a,
+      sectionId: a.sectionId || a.section || '',
+      biz: a.business || a.biz || '',
+      acquired: a.acquired || false,
+      link: a.link || ''
+    }));
+    setStatus('');
+  } catch(e) {
+    sections = [];
+    articles = [];
+    setStatus('Could not load manifest.json — check it exists in the repo root and is valid JSON.', 'err');
+  }
+  renderAll();
+}
+
+function setStatus(m, t='') { const el = document.getElementById('status'); el.textContent = m; el.className = 'status-bar ' + t; }
+function secById(id) { return sections.find(s => s.id === id); }
+function hexRgb(hex) { return `${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)}`; }
+function fmtDate(iso) { if(!iso) return ''; try { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); } catch(e){ return iso; } }
+function isAcquired(a) { return a.acquired || ACQUIRED_BIZS.some(b => a.biz && a.biz.toLowerCase().includes(b.toLowerCase())); }
+function uid() { return Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6); }
+function isImagePath(p) { return /\.(jpe?g|png|gif|webp)(\?.*)?$/i.test(p||''); }
+function safePath(p) { return encodeURI(p||''); }
+function ytThumb(url) { try { const m = url.match(/(?:v=|youtu\.be\/)([^&?]+)/); return m ? `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg` : null; } catch(e){ return null; } }
+function ytEmbed(url) { try { const m = url.match(/(?:v=|youtu\.be\/|embed\/)([^&?\/]+)/); return m ? `https://www.youtube.com/embed/${m[1]}` : null; } catch(e){ return null; } }
+function spotifyEmbed(url) { try { const m = url.match(/open\.spotify\.com\/(episode|track|show)\/([A-Za-z0-9]+)/); return m ? `https://open.spotify.com/embed/${m[1]}/${m[2]}` : null; } catch(e){ return null; } }
+function vimeoEmbed(url) { try { const m = url.match(/vimeo\.com\/(\d+)/); return m ? `https://player.vimeo.com/video/${m[1]}` : null; } catch(e){ return null; } }
+
+function showOvFooter(link) {
+  const footer = document.getElementById('ov-footer');
+  const linkEl = document.getElementById('ov-link');
+  if (link) { linkEl.href = link; linkEl.textContent = link; footer.style.display = 'flex'; }
+  else { footer.style.display = 'none'; }
+}
+function resetFrames() {
+  document.getElementById('pdf-frame').style.display = 'none';
+  document.getElementById('pdf-frame').src = '';
+  document.getElementById('img-frame').style.display = 'none';
+  document.getElementById('img-frame').src = '';
+  document.getElementById('gallery-frame').style.display = 'none';
+  document.getElementById('gallery-frame').innerHTML = '';
+}
+function openItem(id) {
+  const a = articles.find(x=>x.id===id); if(!a) return;
+  document.getElementById('ov-pub').textContent = a.publication || '';
+  document.getElementById('ov-title').textContent = a.title || '';
+  resetFrames();
+
+  if (Array.isArray(a.gallery) && a.gallery.length) {
+    const wrap = document.getElementById('gallery-frame');
+    wrap.innerHTML = a.gallery.map((p,i) => `<img src="${safePath(p)}" alt="Page ${i+1}" oncontextmenu="return false" draggable="false"><span class="gallery-page-label">Page ${i+1} of ${a.gallery.length}</span>`).join('');
+    wrap.style.display = 'flex';
+  } else if (a.type === 'image' || isImagePath(a.file)) {
+    const img = document.getElementById('img-frame');
+    img.src = safePath(a.file); img.style.display = 'block';
+  } else if (a.type === 'pdf' || /\.pdf$/i.test(a.file||'')) {
+    const frame = document.getElementById('pdf-frame');
+    const absoluteUrl = new URL(safePath(a.file), window.location.href).href;
+    frame.src = 'https://docs.google.com/viewer?embedded=true&url=' + encodeURIComponent(absoluteUrl);
+    frame.style.display = 'block';
+  } else {
+    setStatus('Could not find a viewable file for this item.', 'err');
+    return;
+  }
+  showOvFooter(a.link || a.file || '');
+  document.getElementById('overlay').classList.add('show');
+}
+function openVideo(id) {
+  const a = articles.find(x=>x.id===id); if(!a || !a.url) return;
+  document.getElementById('ov-pub').textContent = a.publication || a.mediaType || '';
+  document.getElementById('ov-title').textContent = a.title || '';
+  resetFrames();
+  const embedUrl = ytEmbed(a.url) || spotifyEmbed(a.url) || vimeoEmbed(a.url);
+  const frame = document.getElementById('pdf-frame');
+  if (embedUrl) {
+    frame.src = embedUrl;
+    frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+    frame.setAttribute('allowfullscreen', 'true');
+  } else {
+    frame.srcdoc = `<!DOCTYPE html><html><head><style>body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#111;font-family:sans-serif;color:#888}a{color:#8ab4f8;font-size:0.95rem}</style></head><body><a href="${a.url}" target="_blank" rel="noopener">This format can't be embedded — open original ↗</a></body></html>`;
+  }
+  frame.style.display = 'block';
+  showOvFooter(a.link || a.url || '');
+  document.getElementById('overlay').classList.add('show');
+}
+function closeOverlay() {
+  document.getElementById('overlay').classList.remove('show');
+  resetFrames();
+  document.getElementById('pdf-frame').srcdoc = '';
+  document.getElementById('ov-footer').style.display = 'none';
+}
+
+function showManifestModal() {
+  document.getElementById('manifest-modal').classList.add('show');
+  const msel = document.getElementById('m-section');
+  msel.innerHTML = sections.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  updateSnippet();
+}
+function updateSnippet() {
+  const obj = {
+    id: uid(),
+    sectionId: document.getElementById('m-section').value,
+    business: document.getElementById('m-biz').value||'',
+    title: document.getElementById('m-title').value||'Article Title',
+    publication: document.getElementById('m-pub').value||'Publication Name',
+    date: document.getElementById('m-date').value||null,
+    type: document.getElementById('m-type').value,
+    file: document.getElementById('m-file').value||'articles/folder/filename.pdf',
+    link: document.getElementById('m-link').value||'',
+    acquired: document.getElementById('m-acquired').value==='true'
+  };
+  document.getElementById('snippet-box').textContent = JSON.stringify(obj, null, 2) + ',';
+}
+function copySnippet() {
+  const text = document.getElementById('snippet-box').textContent;
+  navigator.clipboard.writeText(text).then(()=>{ const btn=document.querySelector('.copy-btn'); btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy snippet',2000); });
+}
+function closeModals() { document.getElementById('manifest-modal').classList.remove('show'); }
+
+function setFilter(f, btn) {
+  filter = f;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderContent();
+}
+
+function renderFilters() {
+  document.getElementById('filters').innerHTML =
+    `<button class="fb${filter==='all'?' active':''}" onclick="setFilter('all',this)">All</button>` +
+    sections.map(s=>`<button class="fb${filter===s.id?' active':''}" onclick="setFilter('${s.id}',this)"><span class="dot" style="background:${s.color}"></span>${s.name}</button>`).join('');
+}
+function renderCard(a) {
+  const s = secById(a.sectionId) || sections[0] || { color:'#888' };
+  const color = s.color;
+  const bg = `rgba(${hexRgb(color)},0.1)`;
+  const acq = isAcquired(a);
+  const bizTag = a.biz ? `<span class="biz-pill" style="background:${bg};color:${color}">${a.biz}</span>` : '';
+  const acqTag = acq ? `<span class="acq-badge">Acquired</span>` : '';
+  const linkBtn = a.link ? `<a class="orig-link" href="${a.link}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Open original article">↗</a>` : '';
+
+  if (a.type === 'video' || a.type === 'podcast') {
+    const tc = TYPE_COLORS[a.mediaType] || '#94a3b8';
+    const thumb = a.thumb || ytThumb(a.url||'');
+    return `<div class="vcard${acq?' acquired':''}" onclick="openVideo('${a.id}')">
+      <div class="vcard-thumb">
+        ${thumb ? `<img src="${thumb}" alt="" onerror="this.parentNode.innerHTML='<div class=vcard-placeholder><span style=font-size:2rem;color:#333>▶</span></div>'">` : `<div class="vcard-placeholder"><span style="font-size:2rem;color:#333">▶</span></div>`}
+        <div class="play-wrap"><div class="play-btn"><div class="play-tri"></div></div></div>
+      </div>
+      <div class="vcard-body">
+        <div class="vcard-meta">
+          <span class="vcard-type"><span style="width:6px;height:6px;border-radius:50%;background:${tc};display:inline-block"></span>${a.mediaType||'Video'}${a.publication?' · '+a.publication:''}</span>
+          ${a.views?`<span class="vcard-views">👁 ${a.views}</span>`:''}
+        </div>
+        <div class="vcard-title">${a.title}</div>
+        <div class="vcard-footer"><div class="tag-row">${bizTag}${fmtDate(a.date)?`<span style="font-size:0.6rem;color:#333">${fmtDate(a.date)}</span>`:''}${acqTag}</div>${linkBtn}</div>
+      </div>
+    </div>`;
+  }
+
+  const isGallery = Array.isArray(a.gallery) && a.gallery.length > 0;
+  const isImg = a.type === 'image' || isImagePath(a.file);
+  const kindLabel = isGallery ? 'img' : (isImg ? 'img' : 'pdf');
+  const pageBadge = isGallery ? `<span class="page-badge">${a.gallery.length}</span>` : '';
+
+  return `<div class="card${acq?' acquired':''}" onclick="openItem('${a.id}')">
+    <div class="card-top"><span class="pub-name">${a.publication||''}</span><span class="card-date">${fmtDate(a.date)}</span></div>
+    <div class="card-body"><div class="pdf-icon">${kindLabel}${pageBadge}</div><div class="card-title">${a.title}</div></div>
+    <div class="card-footer"><div class="tag-row">${bizTag}${acqTag}</div>${linkBtn}</div>
+  </div>`;
+}
+function renderContent() {
+  const toShow = filter==='all' ? sections : sections.filter(s=>s.id===filter);
+  document.getElementById('content').innerHTML = toShow.map(s => {
+    const arts = articles.filter(a=>a.sectionId===s.id);
+    return `<div class="section-block">
+      <div class="section-header">
+        <span class="section-name" style="color:${s.color}">${s.name}</span>
+        <span class="section-count">${arts.length} item${arts.length!==1?'s':''}</span>
+        ${s.note?`<span class="section-note">— ${s.note}</span>`:''}
+      </div>
+      <div class="grid">${arts.length===0?`<div class="empty-sec">No coverage here yet.</div>`:arts.map(renderCard).join('')}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('total-count').textContent = String(articles.length).padStart(2,'0');
+}
+function renderAll() { renderFilters(); renderContent(); }
+
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeOverlay(); closeModals(); } });
+init();
+</script>
+</body>
+</html>
