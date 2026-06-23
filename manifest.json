@@ -1,0 +1,35 @@
+{
+  "owner": "Nicholas Fernandes",
+  "updated": "2026-06-20",
+  "sections": [
+    { "id": "businesses", "name": "Businesses", "color": "#c084fc", "note": "" },
+    { "id": "realestate", "name": "Real Estate", "color": "#34d399", "note": "" },
+    { "id": "personal",   "name": "Personal",   "color": "#fb923c", "note": "Awards & Recognition" }
+  ],
+  "articles": [
+    {
+      "id": "bright-bloom-1",
+      "sectionId": "realestate",
+      "business": "Bright Bloom",
+      "title": "America's Housing Report Card Is Out",
+      "publication": "The Playbook",
+      "date": "2026-06-18",
+      "type": "pdf",
+      "file": "articles/bright-bloom/bright-bloom-housing-report-card-2026.pdf",
+      "link": "https://www.theplaybookmb.com/stories/americas-housing-report-card-2026",
+      "acquired": false
+    },
+    {
+      "id": "bright-bloom-2",
+      "sectionId": "realestate",
+      "business": "Bright Bloom",
+      "title": "What It's Really Like to Invest in Indianapolis",
+      "publication": "Press Feature",
+      "date": "2026-06-18",
+      "type": "pdf",
+      "file": "articles/bright-bloom/bright-bloom-invest-in-indianapolis.pdf",
+      "link": "",
+      "acquired": false
+    }
+  ]
+}
