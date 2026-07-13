@@ -7,7 +7,6 @@
     { "id": "personal", "name": "Personal", "color": "#fb923c", "note": "Awards & Recognition" }
   ],
   "articles": [
-
     {
       "id": "bright-bloom-1",
       "sectionId": "realestate",
@@ -20,7 +19,6 @@
       "link": "https://www.theplaybookmb.com/stories/americas-housing-report-card-2026",
       "acquired": false
     },
-
     {
       "id": "bright-bloom-2",
       "sectionId": "realestate",
@@ -33,7 +31,6 @@
       "link": "",
       "acquired": false
     },
-
     {
       "id": "cs-beststartup",
       "sectionId": "businesses",
@@ -42,10 +39,9 @@
       "publication": "BestStartup",
       "date": "2021-01-01",
       "type": "pdf",
-      "file": "articles/creditsage/28 Best Massachusetts Personal Finance Companies and Startups - BestStartup.pdf",
+      "file": "articles/creditsage/creditsage-beststartup.pdf",
       "link": "",
       "acquired": true
     }
-
   ]
 }
