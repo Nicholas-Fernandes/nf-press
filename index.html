@@ -101,11 +101,16 @@ header { padding: 2.5rem 3rem 1.75rem; border-bottom: 1px solid var(--border); d
 .ov-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #ddd8cc; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ov-close { background: none; border: 1px solid var(--border2); color: var(--muted); padding: 0.28rem 0.8rem; font-family: 'DM Sans', sans-serif; font-size: 0.7rem; letter-spacing: 0.08em; border-radius: 2px; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
 .ov-close:hover { color: var(--text); border-color: #666; }
-.pdf-frame { flex: 1; width: 100%; border: none; background: #111; }
 .overlay-body { flex: 1; display: flex; align-items: center; justify-content: center; overflow: auto; background: #111; }
 .gallery-stack { width: 100%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 1.25rem 0; }
 .gallery-stack img { max-width: min(900px, 92%); width: 100%; display: block; box-shadow: 0 2px 16px rgba(0,0,0,0.5); }
 .gallery-page-label { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: #444; margin-top: 0.3rem; }
+.pdf-canvas-wrap { width: 100%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 1.25rem 0; }
+.pdf-canvas-wrap canvas { max-width: min(900px, 92%); width: 100%; display: block; box-shadow: 0 2px 16px rgba(0,0,0,0.5); }
+.ov-loading { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; color: #555; }
+.ov-spin { width: 22px; height: 22px; border: 1.5px solid #252522; border-top-color: var(--text); border-radius: 50%; animation: spin 0.65s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ov-loading-txt { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; }
 .ov-footer { padding: 0.7rem 1.75rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; background: var(--bg2); }
 .ov-footer-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); flex-shrink: 0; }
 .ov-footer a { font-size: 0.78rem; color: #8ab4f8; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -141,6 +146,7 @@ header { padding: 2.5rem 3rem 1.75rem; border-bottom: 1px solid var(--border); d
   .hdr-left h1 { font-size: 1.75rem; }
   .form-grid { grid-template-columns: 1fr; }
 }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </style>
 </head>
 <body>
@@ -168,9 +174,11 @@ header { padding: 2.5rem 3rem 1.75rem; border-bottom: 1px solid var(--border); d
     <button class="ov-close" onclick="closeOverlay()">✕ Close</button>
   </div>
   <div class="overlay-body" id="overlay-body">
-    <iframe class="pdf-frame" id="pdf-frame"></iframe>
+    <div class="ov-loading" id="ov-loading" style="display:none"><div class="ov-spin"></div><span class="ov-loading-txt">Loading...</span></div>
     <img id="img-frame" style="display:none;max-width:100%;max-height:100%;object-fit:contain;margin:auto" oncontextmenu="return false" draggable="false">
     <div id="gallery-frame" class="gallery-stack" style="display:none"></div>
+    <div id="pdf-canvas-wrap" class="pdf-canvas-wrap" style="display:none"></div>
+    <iframe id="video-frame" style="display:none;flex:1;width:100%;border:none;background:#111" allowfullscreen></iframe>
   </div>
   <div class="ov-footer" id="ov-footer" style="display:none">
     <span class="ov-footer-label">Source</span>
@@ -257,19 +265,56 @@ function showOvFooter(link) {
   else { footer.style.display = 'none'; }
 }
 function resetFrames() {
-  document.getElementById('pdf-frame').style.display = 'none';
-  document.getElementById('pdf-frame').src = '';
+  document.getElementById('ov-loading').style.display = 'none';
   document.getElementById('img-frame').style.display = 'none';
   document.getElementById('img-frame').src = '';
   document.getElementById('gallery-frame').style.display = 'none';
   document.getElementById('gallery-frame').innerHTML = '';
+  document.getElementById('pdf-canvas-wrap').style.display = 'none';
+  document.getElementById('pdf-canvas-wrap').innerHTML = '';
+  document.getElementById('video-frame').style.display = 'none';
+  document.getElementById('video-frame').src = '';
+  document.getElementById('video-frame').srcdoc = '';
+}
+async function renderPdfWithJs(url) {
+  const wrap = document.getElementById('pdf-canvas-wrap');
+  wrap.innerHTML = '';
+  wrap.style.display = 'flex';
+  document.getElementById('ov-loading').style.display = 'flex';
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const pdf = await pdfjsLib.getDocument(url).promise;
+    document.getElementById('ov-loading').style.display = 'none';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: window.devicePixelRatio > 1 ? 1.8 : 1.4 });
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      canvas.style.maxWidth = 'min(900px, 92%)';
+      canvas.style.width = '100%';
+      canvas.style.boxShadow = '0 2px 16px rgba(0,0,0,0.5)';
+      canvas.oncontextmenu = () => false;
+      wrap.appendChild(canvas);
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      if (pdf.numPages > 1) {
+        const lbl = document.createElement('span');
+        lbl.className = 'gallery-page-label';
+        lbl.textContent = `Page ${i} of ${pdf.numPages}`;
+        wrap.appendChild(lbl);
+      }
+    }
+  } catch(e) {
+    document.getElementById('ov-loading').style.display = 'none';
+    wrap.innerHTML = `<div style="color:#555;text-align:center;padding:2rem"><p style="margin-bottom:1rem;font-size:0.9rem">Could not render PDF inline.</p><a href="${url}" target="_blank" style="color:#8ab4f8;font-size:0.85rem">Open PDF directly ↗</a></div>`;
+  }
 }
 function openItem(id) {
   const a = articles.find(x=>x.id===id); if(!a) return;
   document.getElementById('ov-pub').textContent = a.publication || '';
   document.getElementById('ov-title').textContent = a.title || '';
   resetFrames();
-
   if (Array.isArray(a.gallery) && a.gallery.length) {
     const wrap = document.getElementById('gallery-frame');
     wrap.innerHTML = a.gallery.map((p,i) => `<img src="${safePath(p)}" alt="Page ${i+1}" oncontextmenu="return false" draggable="false"><span class="gallery-page-label">Page ${i+1} of ${a.gallery.length}</span>`).join('');
@@ -278,15 +323,12 @@ function openItem(id) {
     const img = document.getElementById('img-frame');
     img.src = safePath(a.file); img.style.display = 'block';
   } else if (a.type === 'pdf' || /\.pdf$/i.test(a.file||'')) {
-    const frame = document.getElementById('pdf-frame');
     const absoluteUrl = new URL(safePath(a.file), window.location.href).href;
-    frame.src = 'https://docs.google.com/viewer?embedded=true&url=' + encodeURIComponent(absoluteUrl);
-    frame.style.display = 'block';
+    renderPdfWithJs(absoluteUrl);
   } else {
-    setStatus('Could not find a viewable file for this item.', 'err');
-    return;
+    setStatus('No viewable file for this item.', 'err'); return;
   }
-  showOvFooter(a.link || a.file || '');
+  showOvFooter(a.link || '');
   document.getElementById('overlay').classList.add('show');
 }
 function openVideo(id) {
@@ -294,14 +336,13 @@ function openVideo(id) {
   document.getElementById('ov-pub').textContent = a.publication || a.mediaType || '';
   document.getElementById('ov-title').textContent = a.title || '';
   resetFrames();
+  const frame = document.getElementById('video-frame');
   const embedUrl = ytEmbed(a.url) || spotifyEmbed(a.url) || vimeoEmbed(a.url);
-  const frame = document.getElementById('pdf-frame');
   if (embedUrl) {
     frame.src = embedUrl;
     frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
-    frame.setAttribute('allowfullscreen', 'true');
   } else {
-    frame.srcdoc = `<!DOCTYPE html><html><head><style>body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#111;font-family:sans-serif;color:#888}a{color:#8ab4f8;font-size:0.95rem}</style></head><body><a href="${a.url}" target="_blank" rel="noopener">This format can't be embedded — open original ↗</a></body></html>`;
+    frame.srcdoc = `<!DOCTYPE html><html><head><style>body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#111;font-family:sans-serif}a{color:#8ab4f8;font-size:0.95rem}</style></head><body><a href="${a.url}" target="_blank" rel="noopener">Open in new tab ↗</a></body></html>`;
   }
   frame.style.display = 'block';
   showOvFooter(a.link || a.url || '');
@@ -310,7 +351,6 @@ function openVideo(id) {
 function closeOverlay() {
   document.getElementById('overlay').classList.remove('show');
   resetFrames();
-  document.getElementById('pdf-frame').srcdoc = '';
   document.getElementById('ov-footer').style.display = 'none';
 }
 
