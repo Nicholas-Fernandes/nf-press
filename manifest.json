@@ -1,12 +1,13 @@
 {
   "owner": "Nicholas Fernandes",
-  "updated": "2026-06-20",
+  "updated": "2026-07-14",
   "sections": [
     { "id": "businesses", "name": "Businesses", "color": "#c084fc", "note": "" },
     { "id": "realestate", "name": "Real Estate", "color": "#34d399", "note": "" },
-    { "id": "personal",   "name": "Personal",   "color": "#fb923c", "note": "Awards & Recognition" }
+    { "id": "personal", "name": "Personal", "color": "#fb923c", "note": "Awards & Recognition" }
   ],
   "articles": [
+
     {
       "id": "bright-bloom-1",
       "sectionId": "realestate",
@@ -19,6 +20,7 @@
       "link": "https://www.theplaybookmb.com/stories/americas-housing-report-card-2026",
       "acquired": false
     },
+
     {
       "id": "bright-bloom-2",
       "sectionId": "realestate",
@@ -30,6 +32,20 @@
       "file": "articles/bright-bloom/bright-bloom-invest-in-indianapolis.pdf",
       "link": "",
       "acquired": false
+    },
+
+    {
+      "id": "cs-beststartup",
+      "sectionId": "businesses",
+      "business": "CreditSage",
+      "title": "CreditSage Named Among Top Massachusetts Personal Finance Startups",
+      "publication": "BestStartup",
+      "date": "2021-01-01",
+      "type": "pdf",
+      "file": "articles/creditsage/best-massachusetts-personal-finance-startups-beststartup.pdf",
+      "link": "",
+      "acquired": true
     }
+
   ]
 }
