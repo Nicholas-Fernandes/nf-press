@@ -158,7 +158,6 @@ header { padding: 2.5rem 3rem 1.75rem; border-bottom: 1px solid var(--border); d
   </div>
   <div class="hdr-right">
     <div class="big-count" id="total-count">00</div>
-    <button class="hbtn accent" onclick="showManifestModal()">+ Add Coverage</button>
   </div>
 </header>
 
@@ -200,7 +199,8 @@ header { padding: 2.5rem 3rem 1.75rem; border-bottom: 1px solid var(--border); d
       <div class="form-row"><label>Type</label>
         <select id="m-type" onchange="updateSnippet()"><option value="pdf">PDF</option><option value="image">Image / Screenshot</option><option value="video">Video</option><option value="podcast">Podcast</option></select>
       </div>
-      <div class="form-row full"><label>File path (must match the file you uploaded exactly)</label><input type="text" id="m-file" placeholder="articles/memmzy/file.pdf" oninput="updateSnippet()"></div>
+      <div class="form-row full"><label>Google Drive link (paste share URL — best for PDFs)</label><input type="url" id="m-drive" placeholder="https://drive.google.com/file/d/..." oninput="updateSnippet()"></div>
+      <div class="form-row full"><label>File path on GitHub (optional if using Drive)</label><input type="text" id="m-file" placeholder="articles/memmzy/file.pdf" oninput="updateSnippet()"></div>
       <div class="form-row full"><label>Original article link (optional, if still live)</label><input type="url" id="m-link" placeholder="https://..." oninput="updateSnippet()"></div>
       <div class="form-row"><label>Acquired?</label>
         <select id="m-acquired" onchange="updateSnippet()"><option value="false">No</option><option value="true">Yes (Acquired)</option></select>
@@ -310,11 +310,32 @@ async function renderPdfWithJs(url) {
     wrap.innerHTML = `<div style="color:#555;text-align:center;padding:2rem"><p style="margin-bottom:1rem;font-size:0.9rem">Could not render PDF inline.</p><a href="${url}" target="_blank" style="color:#8ab4f8;font-size:0.85rem">Open PDF directly ↗</a></div>`;
   }
 }
+function driveEmbedUrl(url) {
+  if (!url) return null;
+  // Handle formats: /file/d/ID/view, /file/d/ID/edit, /open?id=ID, docs.google.com/...
+  const m = url.match(/[-\w]{25,}/);
+  return m ? `https://drive.google.com/file/d/${m[0]}/preview` : null;
+}
 function openItem(id) {
   const a = articles.find(x=>x.id===id); if(!a) return;
   document.getElementById('ov-pub').textContent = a.publication || '';
   document.getElementById('ov-title').textContent = a.title || '';
   resetFrames();
+
+  // Google Drive — best for PDFs, renders inline with no CORS issues
+  if (a.driveUrl) {
+    const embedUrl = driveEmbedUrl(a.driveUrl);
+    if (embedUrl) {
+      const frame = document.getElementById('video-frame');
+      frame.src = embedUrl;
+      frame.setAttribute('allow', 'autoplay');
+      frame.style.display = 'block';
+      showOvFooter(a.link || a.driveUrl || '');
+      document.getElementById('overlay').classList.add('show');
+      return;
+    }
+  }
+
   if (Array.isArray(a.gallery) && a.gallery.length) {
     const wrap = document.getElementById('gallery-frame');
     wrap.innerHTML = a.gallery.map((p,i) => `<img src="${safePath(p)}" alt="Page ${i+1}" oncontextmenu="return false" draggable="false"><span class="gallery-page-label">Page ${i+1} of ${a.gallery.length}</span>`).join('');
@@ -323,6 +344,7 @@ function openItem(id) {
     const img = document.getElementById('img-frame');
     img.src = safePath(a.file); img.style.display = 'block';
   } else if (a.type === 'pdf' || /\.pdf$/i.test(a.file||'')) {
+    // No driveUrl — try PDF.js, fall back to open link
     const absoluteUrl = new URL(safePath(a.file), window.location.href).href;
     renderPdfWithJs(absoluteUrl);
   } else {
@@ -369,7 +391,8 @@ function updateSnippet() {
     publication: document.getElementById('m-pub').value||'Publication Name',
     date: document.getElementById('m-date').value||null,
     type: document.getElementById('m-type').value,
-    file: document.getElementById('m-file').value||'articles/folder/filename.pdf',
+    driveUrl: document.getElementById('m-drive').value||'',
+    file: document.getElementById('m-file').value||'',
     link: document.getElementById('m-link').value||'',
     acquired: document.getElementById('m-acquired').value==='true'
   };
